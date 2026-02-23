@@ -1,0 +1,14 @@
+name: Periodic
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Run weekly to check URL links still resolve
+    - cron: "0 8 * * WED"
+
+jobs:
+  mkdocs-link-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - uses: byrnereese/github-action-mkdocs-link-check@1.0

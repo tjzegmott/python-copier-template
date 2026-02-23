@@ -1,0 +1,22 @@
+{
+  "include-component-in-tag": false,
+  "tag-separator": "@",
+  "release-type": "python",
+  "separate-pull-requests": true,
+  "packages": {
+    {% raw %}"."{% endraw %}: {
+      "package-name": "{{ project_slug }}",
+      "component": "Core",
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "src/{{ project_slug }}/__init__.py"
+        },
+        {
+          "type": "generic",
+          "path": "docker-compose.yml"
+        }
+      ]
+    }
+  }
+}

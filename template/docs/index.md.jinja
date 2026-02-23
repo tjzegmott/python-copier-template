@@ -1,0 +1,89 @@
+# {{ project_name }}
+
+{{ project_description }}
+
+## Installation
+
+Install using pip:
+
+```bash
+pip install {{ project_slug }}
+```
+
+Or using uv (recommended):
+
+```bash
+uv add {{ project_slug }}
+```
+
+## Quick Start
+
+```python
+import {{ project_slug }}
+
+print({{ project_slug }}.__version__)
+```
+{%- if include_cli %}
+
+### Command Line Interface
+
+{{ project_name }} provides a command-line interface:
+
+```bash
+# Show version
+{{ project_slug }} --version
+
+# Say hello
+{{ project_slug }} hello World
+```
+{%- endif %}
+
+## Development
+
+### Prerequisites
+
+- Python {{ python_version }}+
+- [uv](https://docs.astral.sh/uv/) for package management
+
+### Setup
+
+Clone the repository and install dependencies:
+
+```bash
+git clone https://github.com/{{ github_username }}/{{ repository_name }}.git
+cd {{ repository_name }}
+uv sync --group dev
+```
+
+### Running Tests
+
+```bash
+uv run pytest
+```
+
+### Code Quality
+
+```bash
+# Lint
+uv run ruff check .
+
+# Format
+uv run ruff format .
+
+# Type check
+uv run ty check
+```
+{%- if include_prek %}
+
+### Prek Hooks
+
+Install prek hooks:
+
+```bash
+prek install
+```
+{%- endif %}
+
+## License
+
+This project is licensed under the {{ license }} License - see the [LICENSE](https://github.com/{{ github_username }}/{{ repository_name }}/blob/main/LICENSE) file for details.

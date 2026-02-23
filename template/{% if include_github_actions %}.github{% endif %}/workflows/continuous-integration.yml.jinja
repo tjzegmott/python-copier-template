@@ -1,0 +1,173 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: {% raw %}${{ github.workflow }}-${{ github.ref }}{% endraw %}
+  cancel-in-progress: true
+
+env:
+  FORCE_COLOR: "1"
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install {{ python_version }}
+
+      - name: Install dependencies
+        run: uv sync --group dev
+
+      - name: Lint and format check
+        run: make lint format-check
+
+  type-check:
+    name: Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install {{ python_version }}
+
+      - name: Install dependencies
+        run: uv sync --all-groups
+
+      - name: Run ty type checker
+        run: make type-check
+
+  test:
+    name: Test (Python {% raw %}${{ matrix.python-version }}{% endraw %})
+    runs-on: ubuntu-latest
+    needs: [lint, type-check]
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [{% for v in python_versions_matrix.split(',') %}"{{ v.strip() }}"{% if not loop.last %}, {% endif %}{% endfor %}]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+
+      - name: Set up Python {% raw %}${{ matrix.python-version }}{% endraw %}
+        run: uv python install {% raw %}${{ matrix.python-version }}{% endraw %}
+
+      - name: Install dependencies
+        run: uv sync --all-groups
+
+      - name: Run tests with coverage
+        run: make test-cov
+
+{%- if include_codecov %}
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: {% raw %}${{ secrets.CODECOV_TOKEN }}{% endraw %}
+          files: ./coverage.xml
+          fail_ci_if_error: false
+{%- endif %}
+
+{%- if include_security_scanning %}
+
+  secrets_and_dependency_scan:
+    name: Secret and Dependency Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2.3.9
+        env:
+          GITHUB_TOKEN: {% raw %}${{ secrets.GITHUB_TOKEN }}{% endraw %}
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --all-groups
+      - run: make pysentry
+
+  sast_with_semgrep:
+    name: semgrep scan
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep
+
+    # Skip any PRs created by dependabot or renovate to avoid permission issues:
+    if: {% raw %}${{ github.actor != 'dependabot[bot]' && github.actor != 'dependabot-preview[bot]' && github.actor != 'Renovate[bot]' }}{% endraw %}
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: semgrep scan
+{%- endif %}{% if include_docker %}
+
+  hadolint:
+    name: Validate Dockerfile syntax
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      # Start Docker Buildx
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3.10.0
+        # https://github.com/moby/buildkit/issues/3969
+        # Also set max parallelism to 2, the default of 4 breaks GitHub Actions and causes OOMKills
+        with:
+          buildkitd-config-inline: |
+            [worker.oci]
+              max-parallelism = 2
+          driver-opts: |
+            network=host
+
+      # Download hadolint - https://github.com/hadolint/hadolint/releases
+      - name: Download hadolint
+        shell: bash
+        run: |
+          sudo curl -L https://github.com/hadolint/hadolint/releases/download/v${HADOLINT_VERSION}/hadolint-$(uname -s)-$(uname -m) -o /usr/local/bin/hadolint && \
+          sudo chmod +x /usr/local/bin/hadolint
+        env:
+          HADOLINT_VERSION: 2.12.0
+      # End Download hadolint
+      # Checkout the repo
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 #v4.2.2
+        with:
+          persist-credentials: false
+      # End Checkout the repo
+
+      # Test Dockerfiles with hadolint
+      - name: Run hadolint
+        shell: bash
+        run: hadolint Dockerfile
+      # End Test Dockerfiles with hadolint
+
+      # Test Dockerfiles with docker build checks
+      - name: Run docker build check
+        shell: bash
+        run: |
+          echo "Checking Dockerfile"
+          docker build --check . -f Dockerfile
+      # End Test Dockerfiles with docker build checks{% endif %}
