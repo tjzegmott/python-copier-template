@@ -19,7 +19,7 @@ Built for my own workflow, but you're welcome to use it!
 | **[git-cliff](https://git-cliff.org/)** | Changelog | Auto-generated from conventional commits |
 | **[release-please](https://github.com/googleapis/release-please)** | Automated releases | Auto-generated PR from conventional commits |
 | **[Gitleaks](https://gitleaks.io/)** | Secret scanning | Detects hardcoded secrets in git history |
-| **[pysentry-rs](https://github.com/nickolaj-jepsen/pysentry-rs)** | Dependency scanning | Finds known vulnerabilities in Python deps |
+| **[pysentry-rs](https://github.com/nyudenkov/pysentry)** | Dependency scanning | Finds known vulnerabilities in Python deps |
 | **[Semgrep](https://semgrep.dev/)** | SAST | Static analysis for security vulnerabilities |
 
 ## Quick Start
