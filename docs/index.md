@@ -71,4 +71,4 @@ copier copy --trust /path/to/copier-astral my-project
 !!! note
     The `--trust` flag is required because this template uses custom Jinja2 extensions for features like auto-detecting git user info and generating slugified package names. These extensions are safe to use but Copier warns about them by default.
 
-Once your project is generated, head over to the [User Guide](guide.md) for next steps.
+Once your project is generated, head over to the [User Guide](./guide.md) for next steps.
