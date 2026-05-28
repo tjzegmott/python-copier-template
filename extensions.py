@@ -134,6 +134,7 @@ def current_year(_: str = "") -> str:
     return str(datetime.now().year)
 
 
+
 class CurrentYearExtension(Extension):
     """Jinja2 extension that provides the current year."""
 
@@ -145,4 +146,5 @@ class CurrentYearExtension(Extension):
         """
         super().__init__(environment)
         environment.filters["current_year"] = current_year
-        environment.globals["current_year"] = datetime.now().year
+        # Workaround ty typing checks complaining about Jinja2 global dict types
+        environment.globals["current_year"] = str(datetime.now().year)  # type: ignore
