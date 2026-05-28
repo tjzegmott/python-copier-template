@@ -1,7 +1,8 @@
 import os
 from pathlib import Path
-import pytest
+
 from tests.utils import run_within_dir
+
 
 def test_run_within_dir(tmp_path: Path):
     """Test that run_within_dir changes and restores the working directory."""
