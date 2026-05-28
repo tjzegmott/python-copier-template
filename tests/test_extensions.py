@@ -4,7 +4,6 @@ import subprocess
 from unittest.mock import patch
 
 import pytest
-
 from jinja2 import Environment
 
 from extensions import (
