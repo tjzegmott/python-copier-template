@@ -16,6 +16,7 @@ from extensions import (
     slugify,
 )
 
+
 @pytest.fixture(autouse=True)
 def clear_caches():
     """Clear caches before each test."""
