@@ -57,23 +57,30 @@ class TestGitConfig:
     """Tests for the git_config function."""
 
     def test_valid_git_config(self):
+        git_config.cache_clear()
         with patch("extensions.subprocess.run") as mock_run:
+            mock_run.return_value.returncode = 0
             mock_run.return_value.stdout = "test-value\n"
-            result = git_config("git config user.name")
+            result = git_config("user.name")
             assert result == "test-value"
             mock_run.assert_called_once()
+        git_config.cache_clear()
 
     def test_git_config_not_found(self):
+        git_config.cache_clear()
         with patch("extensions.subprocess.run") as mock_run:
             mock_run.side_effect = FileNotFoundError()
-            result = git_config("git config user.name")
+            result = git_config("user.name")
             assert result == ""
+        git_config.cache_clear()
 
     def test_git_config_subprocess_error(self):
+        git_config.cache_clear()
         with patch("extensions.subprocess.run") as mock_run:
             mock_run.side_effect = subprocess.SubprocessError()
-            result = git_config("git config user.name")
+            result = git_config("user.name")
             assert result == ""
+        git_config.cache_clear()
 
 
 class TestSlugifyExtension:
@@ -98,12 +105,15 @@ class TestGitExtension:
         assert "git_config" in env.filters
 
     def test_filter_works_in_template(self):
+        git_config.cache_clear()
         with patch("extensions.subprocess.run") as mock_run:
+            mock_run.return_value.returncode = 0
             mock_run.return_value.stdout = "Test User\n"
             env = Environment(extensions=[GitExtension])
             template = env.from_string("{{ cmd | git_config }}")
-            result = template.render(cmd="git config user.name")
+            result = template.render(cmd="user.name")
             assert result == "Test User"
+        git_config.cache_clear()
 
 
 class TestGitHubUsername:
@@ -111,14 +121,17 @@ class TestGitHubUsername:
 
     def test_gh_cli_success(self):
         """Test that gh CLI result is returned when available."""
+        github_username.cache_clear()
         mock_result = subprocess.CompletedProcess(
             args=[], returncode=0, stdout="ghuser\n", stderr=""
         )
         with patch("extensions.subprocess.run", return_value=mock_result):
             assert github_username() == "ghuser"
+        github_username.cache_clear()
 
     def test_falls_back_to_git_config(self):
         """Test fallback to git config github.user when gh CLI fails."""
+        github_username.cache_clear()
         gh_result = subprocess.CompletedProcess(
             args=[], returncode=1, stdout="", stderr=""
         )
@@ -127,17 +140,21 @@ class TestGitHubUsername:
         )
         with patch("extensions.subprocess.run", side_effect=[gh_result, git_result]):
             assert github_username() == "gituser"
+        github_username.cache_clear()
 
     def test_returns_empty_when_both_fail(self):
         """Test that empty string is returned when both sources fail."""
+        github_username.cache_clear()
         failed_result = subprocess.CompletedProcess(
             args=[], returncode=1, stdout="", stderr=""
         )
         with patch("extensions.subprocess.run", return_value=failed_result):
             assert github_username() == ""
+        github_username.cache_clear()
 
     def test_gh_cli_not_installed(self):
         """Test fallback when gh CLI is not installed."""
+        github_username.cache_clear()
         git_result = subprocess.CompletedProcess(
             args=[], returncode=0, stdout="gituser\n", stderr=""
         )
@@ -146,22 +163,28 @@ class TestGitHubUsername:
             side_effect=[FileNotFoundError(), git_result],
         ):
             assert github_username() == "gituser"
+        github_username.cache_clear()
 
     def test_both_not_installed(self):
         """Test that empty string is returned when neither tool is installed."""
+        github_username.cache_clear()
         with patch("extensions.subprocess.run", side_effect=FileNotFoundError()):
             assert github_username() == ""
+        github_username.cache_clear()
 
     def test_ignores_input_parameter(self):
         """Test that the input parameter is ignored (filter compatibility)."""
+        github_username.cache_clear()
         mock_result = subprocess.CompletedProcess(
             args=[], returncode=0, stdout="ghuser\n", stderr=""
         )
         with patch("extensions.subprocess.run", return_value=mock_result):
             assert github_username("ignored") == "ghuser"
+        github_username.cache_clear()
 
     def test_gh_cli_empty_stdout_triggers_fallback(self):
         """Test that empty gh CLI output triggers git config fallback."""
+        github_username.cache_clear()
         gh_result = subprocess.CompletedProcess(
             args=[], returncode=0, stdout="", stderr=""
         )
@@ -170,6 +193,7 @@ class TestGitHubUsername:
         )
         with patch("extensions.subprocess.run", side_effect=[gh_result, git_result]):
             assert github_username() == "gituser"
+        github_username.cache_clear()
 
 
 class TestCurrentYear:

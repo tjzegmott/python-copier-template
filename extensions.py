@@ -1,5 +1,6 @@
 """Custom Jinja2 extensions for the Copier template."""
 
+import functools
 import re
 import subprocess
 import unicodedata
@@ -29,27 +30,32 @@ def slugify(value: str) -> str:
     return value
 
 
+@functools.lru_cache()
 def git_config(key: str) -> str:
     """Get a value from git config.
 
     Args:
-        key: The git config command to run (e.g., 'git config user.name').
+        key: The git config key to lookup (e.g., 'user.name').
 
     Returns:
         The git config value or empty string if not found.
     """
     try:
         result = subprocess.run(
-            key.split(),
+            ["git", "config", key],
             capture_output=True,
             text=True,
             timeout=5,
         )
-        return result.stdout.strip()
+        if result.returncode == 0:
+            return result.stdout.strip()
     except (subprocess.SubprocessError, FileNotFoundError):
-        return ""
+        pass
+
+    return ""
 
 
+@functools.lru_cache()
 def github_username(_: str = "") -> str:
     """Get the GitHub username from gh CLI or git config.
 
