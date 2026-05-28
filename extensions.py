@@ -145,4 +145,4 @@ class CurrentYearExtension(Extension):
         """
         super().__init__(environment)
         environment.filters["current_year"] = current_year
-        environment.globals["current_year"] = datetime.now().year
+        environment.globals["current_year"] = int(datetime.now().year)  # type: ignore
