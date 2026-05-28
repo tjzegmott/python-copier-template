@@ -69,6 +69,14 @@ class TestGitConfig:
             result = git_config("git config user.name")
             assert result == ""
 
+    def test_git_config_non_zero_exit(self):
+        mock_result = subprocess.CompletedProcess(
+            args=[], returncode=1, stdout="", stderr="error"
+        )
+        with patch("extensions.subprocess.run", return_value=mock_result):
+            result = git_config("git config user.name")
+            assert result == ""
+
     def test_git_config_subprocess_error(self):
         with patch("extensions.subprocess.run") as mock_run:
             mock_run.side_effect = subprocess.SubprocessError()
