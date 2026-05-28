@@ -8,6 +8,9 @@ from datetime import datetime
 from jinja2 import Environment
 from jinja2.ext import Extension
 
+_SLUGIFY_STRIP_RE = re.compile(r"[^\w\s-]")
+_SLUGIFY_HYPHENATE_RE = re.compile(r"[-\s]+")
+
 
 def slugify(value: str) -> str:
     """Convert a string to a slug suitable for use as a Python package name.
@@ -23,8 +26,8 @@ def slugify(value: str) -> str:
     value = value.encode("ascii", "ignore").decode("ascii")
 
     # Convert to lowercase and replace spaces/special chars with hyphens
-    value = re.sub(r"[^\w\s-]", "", value.lower())
-    value = re.sub(r"[-\s]+", "-", value).strip("-")
+    value = _SLUGIFY_STRIP_RE.sub("", value.lower())
+    value = _SLUGIFY_HYPHENATE_RE.sub("-", value).strip("-")
 
     return value
 
@@ -142,4 +145,4 @@ class CurrentYearExtension(Extension):
         """
         super().__init__(environment)
         environment.filters["current_year"] = current_year
-        environment.globals["current_year"] = datetime.now().year
+        environment.globals["current_year"] = int(datetime.now().year)  # type: ignore
