@@ -1,6 +1,7 @@
 """Tests for the custom Jinja2 extensions."""
 
 import subprocess
+from datetime import datetime
 from unittest.mock import patch
 
 from jinja2 import Environment
@@ -176,14 +177,10 @@ class TestCurrentYear:
     """Tests for the current_year function."""
 
     def test_returns_current_year(self):
-        from datetime import datetime
-
         result = current_year()
         assert result == str(datetime.now().year)
 
     def test_ignores_input(self):
-        from datetime import datetime
-
         result = current_year("ignored")
         assert result == str(datetime.now().year)
 
@@ -200,16 +197,12 @@ class TestCurrentYearExtension:
         assert "current_year" in env.globals
 
     def test_filter_works_in_template(self):
-        from datetime import datetime
-
         env = Environment(extensions=[CurrentYearExtension])
         template = env.from_string("{{ '' | current_year }}")
         result = template.render()
         assert result == str(datetime.now().year)
 
     def test_global_works_in_template(self):
-        from datetime import datetime
-
         env = Environment(extensions=[CurrentYearExtension])
         template = env.from_string("{{ current_year }}")
         result = template.render()
