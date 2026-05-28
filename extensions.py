@@ -30,7 +30,7 @@ def slugify(value: str) -> str:
     return value
 
 
-@functools.lru_cache()
+@functools.lru_cache
 def git_config(key: str) -> str:
     """Get a value from git config.
 
@@ -55,7 +55,7 @@ def git_config(key: str) -> str:
     return ""
 
 
-@functools.lru_cache()
+@functools.lru_cache
 def github_username(_: str = "") -> str:
     """Get the GitHub username from gh CLI or git config.
 
