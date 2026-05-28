@@ -152,6 +152,19 @@ class TestGitHubUsername:
         with patch("extensions.subprocess.run", side_effect=FileNotFoundError()):
             assert github_username() == ""
 
+    def test_subprocess_error_triggers_fallback(self):
+        """Test that SubprocessError triggers fallback to git config."""
+        git_result = subprocess.CompletedProcess(
+            args=[], returncode=0, stdout="gituser\n", stderr=""
+        )
+        with patch("extensions.subprocess.run", side_effect=[subprocess.SubprocessError(), git_result]):
+            assert github_username() == "gituser"
+
+    def test_subprocess_error_on_both(self):
+        """Test that empty string is returned when both tools raise SubprocessError."""
+        with patch("extensions.subprocess.run", side_effect=subprocess.SubprocessError()):
+            assert github_username() == ""
+
     def test_ignores_input_parameter(self):
         """Test that the input parameter is ignored (filter compatibility)."""
         mock_result = subprocess.CompletedProcess(
