@@ -55,7 +55,7 @@ class TestSlugify:
 
     def test_none_input(self):
         with pytest.raises(TypeError):
-            slugify(None)
+            slugify(None)  # type: ignore
 
 
 class TestGitConfig:
