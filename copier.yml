@@ -47,13 +47,13 @@ project_slug:
 author_name:
   type: str
   help: "Author's full name"
-  default: "{{ 'git config user.name' | git_config }}"
+  default: "{{ 'user.name' | git_config }}"
   placeholder: "John Doe"
 
 author_email:
   type: str
   help: "Author's email address"
-  default: "{{ 'git config user.email' | git_config }}"
+  default: "{{ 'user.email' | git_config }}"
   placeholder: "john@example.com"
 
 github_username:
