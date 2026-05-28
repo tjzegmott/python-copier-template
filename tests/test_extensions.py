@@ -3,6 +3,8 @@
 import subprocess
 from unittest.mock import patch
 
+import pytest
+
 from jinja2 import Environment
 
 from extensions import (
@@ -51,6 +53,10 @@ class TestSlugify:
 
     def test_only_special_characters(self):
         assert slugify("!@#$%^&*()") == ""
+
+    def test_none_input(self):
+        with pytest.raises(TypeError):
+            slugify(None)
 
 
 class TestGitConfig:
