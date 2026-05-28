@@ -1,5 +1,6 @@
 """Custom Jinja2 extensions for the Copier template."""
 
+import functools
 import re
 import subprocess
 import unicodedata
@@ -29,6 +30,7 @@ def slugify(value: str) -> str:
     return value
 
 
+@functools.lru_cache
 def git_config(key: str) -> str:
     """Get a value from git config.
 
@@ -50,6 +52,7 @@ def git_config(key: str) -> str:
         return ""
 
 
+@functools.lru_cache
 def github_username(_: str = "") -> str:
     """Get the GitHub username from gh CLI or git config.
 
@@ -131,6 +134,7 @@ def current_year(_: str = "") -> str:
     return str(datetime.now().year)
 
 
+
 class CurrentYearExtension(Extension):
     """Jinja2 extension that provides the current year."""
 
@@ -142,4 +146,5 @@ class CurrentYearExtension(Extension):
         """
         super().__init__(environment)
         environment.filters["current_year"] = current_year
-        environment.globals["current_year"] = datetime.now().year
+        # Workaround ty typing checks complaining about Jinja2 global dict types
+        environment.globals["current_year"] = str(datetime.now().year)  # type: ignore

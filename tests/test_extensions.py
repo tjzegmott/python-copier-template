@@ -3,6 +3,7 @@
 import subprocess
 from unittest.mock import patch
 
+import pytest
 from jinja2 import Environment
 
 from extensions import (
@@ -14,6 +15,14 @@ from extensions import (
     github_username,
     slugify,
 )
+
+
+@pytest.fixture(autouse=True)
+def clear_caches():
+    """Clear caches before each test."""
+    git_config.cache_clear()
+    github_username.cache_clear()
+    yield
 
 
 class TestSlugify:
