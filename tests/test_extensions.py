@@ -3,6 +3,7 @@
 import subprocess
 from unittest.mock import patch
 
+import pytest
 from jinja2 import Environment
 
 from extensions import (
@@ -51,6 +52,16 @@ class TestSlugify:
 
     def test_only_special_characters(self):
         assert slugify("!@#$%^&*()") == ""
+
+
+@pytest.fixture(autouse=True)
+def clear_caches():
+    """Clear caches before and after each test."""
+    git_config.cache_clear()
+    github_username.cache_clear()
+    yield
+    git_config.cache_clear()
+    github_username.cache_clear()
 
 
 class TestGitConfig:
