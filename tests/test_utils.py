@@ -1,7 +1,7 @@
-import pytest
-import yaml
 from pathlib import Path
+
 from tests.utils import is_valid_yaml
+
 
 def test_is_valid_yaml_valid(tmp_path: Path):
     """Test is_valid_yaml with a valid YAML file."""
