@@ -1,7 +1,5 @@
 """Test utilities for copier template testing."""
 
-import os
-from contextlib import contextmanager
 from pathlib import Path
 
 import yaml
@@ -22,21 +20,6 @@ def is_valid_yaml(path: Path) -> bool:
         return True
     except (FileNotFoundError, yaml.YAMLError, OSError):
         return False
-
-
-@contextmanager
-def run_within_dir(path: Path):
-    """Context manager to temporarily change working directory.
-
-    Args:
-        path: Directory to change to.
-    """
-    old_cwd = os.getcwd()
-    try:
-        os.chdir(path)
-        yield
-    finally:
-        os.chdir(old_cwd)
 
 
 def file_contains_text(file_path: Path, text: str) -> bool:
