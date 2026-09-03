@@ -88,8 +88,9 @@ include = [
 packages = ["src/{{ project_slug }}"]
 
 # Matrix testing across Python versions
-[tool.hatch.envs.test]
-[[tool.hatch.envs.test.matrix]]
+[tool.hatch.envs.hatch-test]
+dependency-groups = ["dev"]
+[[tool.hatch.envs.hatch-test.matrix]]
 python = [{% for v in python_versions_matrix.split(',') %}"{{ v.strip() }}"{% if not loop.last %}, {% endif %}{% endfor %}]
 
 # =============================================================================
