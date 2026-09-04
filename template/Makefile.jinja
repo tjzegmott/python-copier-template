@@ -39,14 +39,12 @@ test-matrix:
 
 # Run tests with coverage across all Python versions
 test-matrix-cov:
-	uv run hatch test --cover
+	uv run hatch test --cover{% if include_security_scanning %}
 
-{% if include_security_scanning %}
 # Dependency vulnerability scanning
 pysentry:
-	uv run pysentry-rs
-{% endif %}
-{% if include_docs %}
+	uv run pysentry-rs{% endif %}{% if include_docs %}
+
 # Documentation
 docs:
 	uv run mkdocs build

@@ -1,6 +1,8 @@
 """Tests for {{ project_slug }}."""
 
+{%- if include_cli %}
 from typer.testing import CliRunner
+{%- endif %}
 
 from {{ project_slug }} import __version__
 {%- if include_cli %}
@@ -14,7 +16,6 @@ def test_version() -> None:
     """Test that version is defined."""
     assert __version__ is not None
     assert isinstance(__version__, str)
-
 {%- if include_cli %}
 
 
